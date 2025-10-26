@@ -170,33 +170,17 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
         "Content-Type": "application/json",
     }
 
-    # Debug: print request body
-    print("=== DEBUG: Request Payload ===")
-    print(json.dumps(payload, indent=2))
-    print("=== End DEBUG ===")
-
     post_fn, name = _select_http_impl()
     try:
         status, text = post_fn(url, headers, payload, timeout_s)
     except Exception as exc:
-        print(f"=== DEBUG: Exception Details ===")
-        print(f"Exception: {exc}")
-        print(f"=== End DEBUG ===")
         raise RuntimeError(f"OpenAI request failed ({name}): {exc}")
 
     if status < 200 or status >= 300:
-        # Print error response for debugging
-        print(f"=== DEBUG: Error Response ===")
-        print(f"Status: {status}")
-        print(f"Response: {text}")
-        print("=== End DEBUG ===")
         raise RuntimeError(f"OpenAI API error: HTTP {status}")
 
     try:
         data = json.loads(text)
-        print("=== DEBUG: Response Data ===")
-        print(json.dumps(data, indent=2))
-        print("=== End DEBUG ===")
         
         if is_gpt5:
             # Extract text from Responses API format
@@ -212,10 +196,6 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
             content = data["choices"][0]["message"]["content"]
             return content.strip()
     except Exception as exc:
-        print("=== DEBUG: Response Parsing Error ===")
-        print(f"Response text: {text}")
-        print(f"Exception: {exc}")
-        print("=== End DEBUG ===")
         raise RuntimeError(f"Unexpected OpenAI response format: {exc}")
 
 
@@ -327,20 +307,21 @@ def main() -> int:
     except Exception as exc:
         _print_err(f"❌ Generation failed: {exc}")
         return 1
-    dur_ms = int((time.time() - start) * 1000)
 
     # Safety: ensure message is not empty
     if not message.strip():
         _print_err("❌ Model returned empty message.")
         return 1
 
-    print(f"💬 {message}")
-
     # Compose commit args: existing flags + -m <message>
     commit_args = passthrough + ["-m", message]
 
     # Execute git commit
     code = _run_git(commit_args)
+    
+    if code == 0:
+        print(f"✅ Committed with message: {message}")
+    
     return code
 
 
