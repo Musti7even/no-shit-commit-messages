@@ -168,9 +168,16 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
 
     try:
         data = json.loads(text)
+        print("=== DEBUG: Response Data ===")
+        print(json.dumps(data, indent=2))
+        print("=== End DEBUG ===")
         content = data["choices"][0]["message"]["content"]
         return content.strip()
     except Exception as exc:
+        print("=== DEBUG: Response Parsing Error ===")
+        print(f"Response text: {text}")
+        print(f"Exception: {exc}")
+        print("=== End DEBUG ===")
         raise RuntimeError(f"Unexpected OpenAI response format: {exc}")
 
 

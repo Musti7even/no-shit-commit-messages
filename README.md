@@ -1,5 +1,6 @@
 # 🧠 No-Shit-Commit-Messages
 
+Welcome! We all had this painpoint. Now it should be solved.
 Stop writing shitty commit messages.  
 Just run `git commit -m ""` — we’ll handle the rest.
 
