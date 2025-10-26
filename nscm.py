@@ -132,16 +132,42 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
     if not api_key:
         raise RuntimeError("Missing OPENAI_API_KEY")
 
-    url = "https://api.openai.com/v1/chat/completions"
+    # Use Responses API for GPT-5, Chat Completions for GPT-4
+    is_gpt5 = model.startswith("gpt-5")
+    
+    if is_gpt5:
+        url = "https://api.openai.com/v1/responses"
+        # Convert messages to Responses API format
+        input_content = []
+        for msg in messages:
+            if msg["role"] == "system":
+                input_content.append({"role": "developer", "content": msg["content"]})
+            else:
+                input_content.append({"role": "user", "content": msg["content"]})
+        
+        payload = {
+            "model": model,
+            "input": input_content,
+            "text": {
+                "verbosity": "low",
+                "format": {"type": "text"}
+            },
+            "reasoning": {
+                "effort": "minimal"
+            }
+        }
+    else:
+        url = "https://api.openai.com/v1/chat/completions"
+        payload = {
+            "model": model,
+            "messages": messages,
+            "temperature": 0.2,
+            "max_tokens": 120,
+        }
+
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
-    }
-    payload = {
-        "model": model,
-        "messages": messages,
-        "temperature": 0.2,
-        "max_tokens": 120,
     }
 
     # Debug: print request body
@@ -171,8 +197,20 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
         print("=== DEBUG: Response Data ===")
         print(json.dumps(data, indent=2))
         print("=== End DEBUG ===")
-        content = data["choices"][0]["message"]["content"]
-        return content.strip()
+        
+        if is_gpt5:
+            # Extract text from Responses API format
+            output_text = ""
+            for item in data.get("output", []):
+                if isinstance(item, dict) and "content" in item:
+                    for content in item["content"]:
+                        if isinstance(content, dict) and "text" in content:
+                            output_text += content["text"]
+            return output_text.strip()
+        else:
+            # Extract text from Chat Completions format
+            content = data["choices"][0]["message"]["content"]
+            return content.strip()
     except Exception as exc:
         print("=== DEBUG: Response Parsing Error ===")
         print(f"Response text: {text}")
