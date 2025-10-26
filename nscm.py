@@ -16,7 +16,7 @@ Environment variables:
 
 Optional config file at ~/.nscmrc with simple key: value pairs, e.g.:
   provider: openai
-  model: gpt-4o-mini
+  model: gpt-5-mini
   style: conventional
 
 This file intentionally avoids heavy dependencies. It will try to use `requests`
@@ -80,7 +80,7 @@ def _get_config() -> Dict[str, str]:
     rc = _read_simple_rc(os.path.expanduser("~/.nscmrc"))
     return {
         "provider": os.getenv("NSCM_PROVIDER", rc.get("provider", "openai")),
-        "model": os.getenv("NSCM_MODEL", rc.get("model", "gpt-4o-mini")),
+        "model": os.getenv("NSCM_MODEL", rc.get("model", "gpt-5-mini-2025-08-07")),
         "style": os.getenv("NSCM_STYLE", rc.get("style", "conventional")),
     }
 
@@ -138,6 +138,11 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
         "max_tokens": 120,
     }
 
+    # Debug: print request body
+    print("=== DEBUG: Request Payload ===")
+    print(json.dumps(payload, indent=2))
+    print("=== End DEBUG ===")
+
     post_fn, name = _select_http_impl()
     try:
         status, text = post_fn(url, headers, payload, timeout_s)
@@ -145,7 +150,11 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
         raise RuntimeError(f"OpenAI request failed ({name}): {exc}")
 
     if status < 200 or status >= 300:
-        # Avoid printing sensitive content
+        # Print error response for debugging
+        print(f"=== DEBUG: Error Response ===")
+        print(f"Status: {status}")
+        print(f"Response: {text}")
+        print("=== End DEBUG ===")
         raise RuntimeError(f"OpenAI API error: HTTP {status}")
 
     try:
@@ -178,15 +187,19 @@ def _generate_message(diff: str, provider: str, model: str, style: str) -> str:
         },
     ]
 
-    content = _openai_chat_complete(model=model, messages=messages)
-    # Keep only first line, trim
-    first_line = content.splitlines()[0].strip()
-    # Guardrail length
-    if len(first_line) > 120:
-        first_line = first_line[:120].rstrip()
-    return first_line
+    try:
+        content = _openai_chat_complete(model=model, messages=messages)
 
+        print(content)
 
+        first_line = content.splitlines()[0].strip()
+        # Guardrail length
+        if len(first_line) > 120:
+            first_line = first_line[:120].rstrip()
+        return first_line
+    except Exception as exc:
+        _print_err(f"❌ Generation failed: {exc}")
+        return ""
 def _extract_commit_args(argv: List[str]) -> Tuple[bool, List[str]]:
     """
     Inspect argv (after program name) to detect `commit -m ""` or `commit --message ""` or `commit -m "`.
