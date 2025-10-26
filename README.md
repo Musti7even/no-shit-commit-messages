@@ -7,7 +7,7 @@ Just run `git commit -m ""` — we’ll handle the rest.
 ## 🚀 Install
 
 ```bash
-brew tap no-shit/commit-messages
+brew tap Musti7even/no-shit-commit-messages
 brew install no-shit-commit-messages
 export OPENAI_API_KEY=sk-...
 alias git='nscm'

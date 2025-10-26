@@ -1,7 +1,7 @@
 class NoShitCommitMessages < Formula
   desc "AI-powered git commit message generator (no more shitty commits)"
-  homepage "https://github.com/usearrow/no-shit-commit-messages"
-  url "https://github.com/usearrow/no-shit-commit-messages/archive/refs/tags/v0.1.0.tar.gz"
+  homepage "https://github.com/Musti7even/no-shit-commit-messages"
+  url "https://github.com/Musti7even/no-shit-commit-messages/archive/refs/tags/v0.1.0.tar.gz"
   sha256 "<fill after release>"
   license "MIT"
 
