@@ -1,0 +1,23 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compute SHA (example)
+        run: |
+          echo "Listing files to hash (replace with release packaging as needed):"
+          ls -la
+          # Example: shasum -a 256 path/to/no-shit-commit-messages-<version>.tar.gz
+          true
+
+
