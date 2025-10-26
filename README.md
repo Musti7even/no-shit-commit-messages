@@ -43,14 +43,14 @@ Optional `~/.nscmrc`:
 
 ```yaml
 provider: openai
-model: gpt-4o-mini
+model: gpt-5-mini-2025-08-07
 style: conventional
 ```
 
 Environment variables override the config file:
 
 - `NSCM_PROVIDER` — provider to use (default: `openai`)
-- `NSCM_MODEL` — model identifier (default: `gpt-4o-mini`)
+- `NSCM_MODEL` — model identifier (default: `gpt-5-mini-2025-08-07`)
 - `NSCM_STYLE` — style hint (default: `conventional`)
 - `OPENAI_API_KEY` — required when provider is `openai`
 

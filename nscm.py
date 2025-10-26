@@ -110,13 +110,19 @@ def _select_http_impl():
         return _post, "requests"
     except Exception:
         import urllib.request
+        import urllib.error
 
         def _post(url: str, headers: Dict[str, str], payload: Dict, timeout: int) -> Tuple[int, str]:
             data = json.dumps(payload).encode("utf-8")
             req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-            with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
-                body = resp.read().decode("utf-8")
-                return resp.getcode(), body
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310
+                    body = resp.read().decode("utf-8")
+                    return resp.getcode(), body
+            except urllib.error.HTTPError as e:
+                # Read the error response body
+                error_body = e.read().decode("utf-8") if e.fp else ""
+                raise RuntimeError(f"HTTP {e.code}: {error_body}")
 
         return _post, "urllib"
 
@@ -147,6 +153,9 @@ def _openai_chat_complete(model: str, messages: List[Dict[str, str]], timeout_s:
     try:
         status, text = post_fn(url, headers, payload, timeout_s)
     except Exception as exc:
+        print(f"=== DEBUG: Exception Details ===")
+        print(f"Exception: {exc}")
+        print(f"=== End DEBUG ===")
         raise RuntimeError(f"OpenAI request failed ({name}): {exc}")
 
     if status < 200 or status >= 300:
