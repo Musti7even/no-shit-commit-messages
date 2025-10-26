@@ -11,12 +11,12 @@ Installation recommendation:
 Environment variables:
   - OPENAI_API_KEY: API key for OpenAI (required for provider=openai)
   - NSCM_PROVIDER: provider to use (default: openai)
-  - NSCM_MODEL: model identifier (default: gpt-5-mini-2025-08-07)
+  - NSCM_MODEL: model identifier (default: gpt-4o-mini)
   - NSCM_STYLE: style hint (e.g., conventional) (default: conventional)
 
 Optional config file at ~/.nscmrc with simple key: value pairs, e.g.:
   provider: openai
-  model: gpt-5-mini-2025-08-07
+  model: gpt-4o-mini
   style: conventional
 
 This file intentionally avoids heavy dependencies. It will try to use `requests`
@@ -80,7 +80,7 @@ def _get_config() -> Dict[str, str]:
     rc = _read_simple_rc(os.path.expanduser("~/.nscmrc"))
     return {
         "provider": os.getenv("NSCM_PROVIDER", rc.get("provider", "openai")),
-        "model": os.getenv("NSCM_MODEL", rc.get("model", "gpt-5-mini-2025-08-07")),
+        "model": os.getenv("NSCM_MODEL", rc.get("model", "gpt-4o-mini")),
         "style": os.getenv("NSCM_STYLE", rc.get("style", "conventional")),
     }
 

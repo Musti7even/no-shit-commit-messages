@@ -1,6 +1,5 @@
 # 🧠 No-Shit-Commit-Messages
 
-Welcome! We all had this painpoint. Now it should be solved.
 Stop writing shitty commit messages.  
 Just run `git commit -m ""` — we’ll handle the rest.
 
@@ -44,14 +43,14 @@ Optional `~/.nscmrc`:
 
 ```yaml
 provider: openai
-model: gpt-5-mini-2025-08-07
+model: gpt-4o-mini
 style: conventional
 ```
 
 Environment variables override the config file:
 
 - `NSCM_PROVIDER` — provider to use (default: `openai`)
-- `NSCM_MODEL` — model identifier (default: `gpt-5-mini-2025-08-07`)
+- `NSCM_MODEL` — model identifier (default: `gpt-4o-mini`)
 - `NSCM_STYLE` — style hint (default: `conventional`)
 - `OPENAI_API_KEY` — required when provider is `openai`
 
