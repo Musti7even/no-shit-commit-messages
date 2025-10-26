@@ -1,8 +1,9 @@
 # 🧠 No-Shit-Commit-Messages
 
 Stop writing shitty commit messages.  
-Just run `git commit -m ""` — we’ll handle the rest.
+Just run `git commit -m ""` — we’ll handle generating a nice commit message.
 
+Uses GPT-5-mini currently.
 ---
 
 ## 🚀 Install
@@ -21,8 +22,7 @@ alias git='nscm'
 ```bash
 git add .
 git commit -m ""        # → AI generates commit message
-git commit -m "         # → AI generates commit message (unclosed quote)
-git commit -m "manual"  # → behaves normally
+git commit -m "manual"  # → still behaves normally, to give you max freedom
 git commit               # → opens editor as usual
 ```
 
@@ -30,8 +30,8 @@ Example output:
 
 ```
 🧠 Generating commit message…
-💬 feat(ui): improve layout responsiveness on profile page
-[main 9b3c2d1] feat(ui): improve layout responsiveness on profile page
+💬 "feat(ui): improve layout responsiveness on profile page"
+
  2 files changed, 10 insertions(+), 3 deletions(-)
 ```
 
@@ -81,8 +81,8 @@ python3 ./nscm.py commit -m ""
 
 ## 🧭 Roadmap
 
-- Ollama / Anthropic providers
-- Multiline commit bodies
+- Ollama or even faster model providers
+- additional context for better commit messages
 - Optional interactive confirmation
 - `--dry-run` previews
 - Submit to Homebrew core once stable
