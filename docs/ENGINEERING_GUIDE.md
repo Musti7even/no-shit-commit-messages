@@ -26,37 +26,6 @@ It should:
 
 ---
 
-## 🧩 Core Experience
-
-### Typical User Flow
-
-```bash
-brew tap usearrow/no-shit
-brew install no-shit-commit-messages
-export OPENAI_API_KEY=sk-...
-alias git='nscm'
-```
-
-Then:
-
-```bash
-git add .
-git commit -m ""         # Auto-generates commit message
-git commit -m "manual"   # Works normally
-git commit               # Opens editor (no change)
-```
-
-Example output:
-
-```
-🧠 Generating commit message…
-💬 feat(ui): improve layout responsiveness on profile page
-[main 9b3c2d1] feat(ui): improve layout responsiveness on profile page
- 2 files changed, 10 insertions(+), 3 deletions(-)
-```
-
----
-
 ## 🧱 Architecture Overview
 
 | Component | Description |
@@ -144,6 +113,6 @@ Trigger on tags `v*`; compute SHA, prepare for formula updates.
 
 ---
 
-MIT © 2025 Arrow / Mustafa Yenler
+MIT © 2025 / Mustafa Yenler
 
 

@@ -89,6 +89,6 @@ python3 ./nscm.py commit -m ""
 
 ---
 
-MIT © 2025 Arrow / Mustafa Yenler
+MIT © 2025 / Mustafa Yenler
 
 
