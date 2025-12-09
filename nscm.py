@@ -98,6 +98,64 @@ def _get_staged_diff(max_lines: int = 500) -> str:
     return "\n".join(lines)
 
 
+def _get_diff_stats() -> Tuple[int, int, int]:
+    """Return (files_changed, insertions, deletions) from staged diff stats."""
+    code, out, err = _capture_git(["diff", "--cached", "--stat"])
+    if code != 0:
+        return 0, 0, 0
+
+    # Parse the summary line: "X files changed, Y insertions(+), Z deletions(-)"
+    lines = out.strip().split('\n')
+    if not lines:
+        return 0, 0, 0
+
+    # Count changed files (all but the last summary line)
+    files_changed = len([l for l in lines if l.strip() and '|' in l])
+
+    # Extract insertions and deletions from summary line
+    summary = lines[-1] if lines else ""
+    insertions = 0
+    deletions = 0
+
+    try:
+        parts = summary.split(',')
+        for part in parts:
+            if '+' in part:
+                insertions = int(part.split('+')[0].strip().split()[-1])
+            elif '-' in part:
+                deletions = int(part.split('-')[0].strip().split()[-1])
+    except (ValueError, IndexError):
+        pass
+
+    return files_changed, insertions, deletions
+
+
+def _format_preview(message: str, diff: str) -> None:
+    """Display a nicely formatted preview of the commit message with stats."""
+    files_changed, insertions, deletions = _get_diff_stats()
+    diff_lines = len(diff.splitlines())
+
+    # Build the preview output
+    lines = [
+        "┌─────────────────────────────────────────────────────────┐",
+        "│                    📝 Commit Preview                     │",
+        "└─────────────────────────────────────────────────────────┘",
+        "",
+        "Message:",
+        f"  {message}",
+        "",
+        "Stats:",
+        f"  📄 Files changed: {files_changed}",
+        f"  ➕ Insertions: {insertions}",
+        f"  ➖ Deletions: {deletions}",
+        f"  📊 Diff lines: {diff_lines}",
+        "",
+        "┌─────────────────────────────────────────────────────────┐",
+    ]
+
+    print("\n".join(lines))
+
+
 def _select_http_impl():
     """Return (post_fn, name) where post_fn(url, headers, json_payload, timeout)->(status, text)."""
     try:
@@ -234,57 +292,68 @@ def _generate_message(diff: str, provider: str, model: str, style: str) -> str:
     except Exception as exc:
         _print_err(f"❌ Generation failed: {exc}")
         return ""
-def _extract_commit_args(argv: List[str]) -> Tuple[bool, List[str]]:
+def _extract_commit_args(argv: List[str]) -> Tuple[str, List[str]]:
     """
-    Inspect argv (after program name) to detect `commit -m ""` or `commit --message ""` or `commit -m "`.
-    Returns (should_generate, passthrough_args_without_empty_message).
-    If not a commit command or message is non-empty, returns (False, original args-after-git).
+    Inspect argv (after program name) to detect commit modes:
+    - `commit -m ""` or `--message ""`: generate and commit
+    - `commit -p` or `--preview`: generate and preview only
+    - Returns (mode, passthrough_args)
+
+    Modes:
+    - "passthrough": Normal git command
+    - "generate": Generate and commit
+    - "preview": Generate and preview only
     """
     if not argv:
-        return False, argv
+        return "passthrough", argv
     if argv[0] != "commit":
-        return False, argv
+        return "passthrough", argv
 
     args = argv[1:]
-    should_generate = False
+    mode = "passthrough"
     cleaned: List[str] = ["commit"]
 
     i = 0
     while i < len(args):
         a = args[i]
-        if a == "-m" or a == "--message":
+        if a == "-p" or a == "--preview":
+            # Preview mode
+            mode = "preview"
+            i += 1
+            continue
+        elif a == "-m" or a == "--message":
             # If next token exists, check if empty or just a quotation mark
             if i + 1 < len(args):
                 val = args[i + 1]
                 if val == "" or val == '"' or val == "'":
-                    should_generate = True
+                    mode = "generate"
                     i += 2
                     continue
                 else:
                     # Non-empty message → passthrough unchanged
-                    return False, ["commit"] + args
+                    return "passthrough", ["commit"] + args
             else:
                 # `-m` with no value: treat as request to generate
-                should_generate = True
+                mode = "generate"
                 i += 1
                 continue
         else:
             cleaned.append(a)
             i += 1
 
-    return should_generate, cleaned
+    return mode, cleaned
 
 
 def main() -> int:
     argv = sys.argv[1:]
 
     # Detect generation flow
-    should_generate, passthrough = _extract_commit_args(argv)
-    if not should_generate:
+    mode, passthrough = _extract_commit_args(argv)
+    if mode == "passthrough":
         # Simple passthrough to real git
         return _run_git(argv)
 
-    # Generate commit message path
+    # Generate commit message path (both "generate" and "preview" modes)
     try:
         diff = _get_staged_diff(max_lines=500)
     except Exception as exc:
@@ -313,15 +382,20 @@ def main() -> int:
         _print_err("❌ Model returned empty message.")
         return 1
 
-    # Compose commit args: existing flags + -m <message>
+    # Preview mode: show the message and stats, then exit
+    if mode == "preview":
+        _format_preview(message, diff)
+        return 0
+
+    # Generate and commit mode: compose commit args and execute
     commit_args = passthrough + ["-m", message]
 
     # Execute git commit
     code = _run_git(commit_args)
-    
+
     if code == 0:
         print(f"✅ Committed with message: {message}")
-    
+
     return code
 
 
