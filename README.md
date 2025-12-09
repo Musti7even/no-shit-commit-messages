@@ -19,21 +19,45 @@ alias git='nscm'
 
 ## 💡 Usage
 
+### Generate and Commit
+
 ```bash
 git add .
-git commit -m ""        # → AI generates commit message
+git commit -m ""        # → AI generates commit message and commits
 git commit -m "manual"  # → still behaves normally, to give you max freedom
 git commit               # → opens editor as usual
 ```
 
-Example output:
+### Preview Message (New!)
+
+Generate a commit message without committing:
+
+```bash
+git add .
+git commit -p           # → Generates message and shows a preview
+```
+
+Preview output example:
 
 ```
 🧠 Generating commit message…
-💬 "feat(ui): improve layout responsiveness on profile page"
+┌─────────────────────────────────────────────────────────┐
+│                    📝 Commit Preview                     │
+└─────────────────────────────────────────────────────────┘
 
- 2 files changed, 10 insertions(+), 3 deletions(-)
+Message:
+  feat(ui): improve layout responsiveness on profile page
+
+Stats:
+  📄 Files changed: 2
+  ➕ Insertions: 10
+  ➖ Deletions: 3
+  📊 Diff lines: 45
+
+┌─────────────────────────────────────────────────────────┐
 ```
+
+You can also use the long form: `git commit --preview`
 
 ---
 
@@ -83,8 +107,7 @@ python3 ./nscm.py commit -m ""
 
 - Ollama or even faster model providers
 - additional context for better commit messages
-- Optional interactive confirmation
-- `--dry-run` previews
+- Optional interactive confirmation (accept/regenerate/edit)
 - Submit to Homebrew core once stable
 
 ---
