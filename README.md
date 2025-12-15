@@ -1,12 +1,12 @@
-# 🧠 No-Shit-Commit-Messages
+# 🧠 Berbat Commit Mesajlarından Kurtulun
 
-Stop writing shitty commit messages.  
-Just run `git commit -m ""` — we’ll handle generating a nice commit message.
+Berbat commit mesajları yazmayı bırak.
+Sadece `git commit -m ""` çalıştır — biz güzel bir commit mesajı oluşturmayı hallederiz.
 
-Uses GPT-5-mini currently.
+Şu anda GPT-5-mini kullanır.
 ---
 
-## 🚀 Install
+## 🚀 Kurulum
 
 ```bash
 brew tap Musti7even/no-shit-commit-messages
@@ -17,29 +17,29 @@ alias git='nscm'
 
 ---
 
-## 💡 Usage
+## 💡 Kullanım
 
 ```bash
 git add .
-git commit -m ""        # → AI generates commit message
-git commit -m "manual"  # → still behaves normally, to give you max freedom
-git commit               # → opens editor as usual
+git commit -m ""        # → AI commit mesajı oluşturur
+git commit -m "manual"  # → normal davranış gösterir, sana max özgürlük sağlar
+git commit               # → her zamanki gibi editörü açar
 ```
 
-Example output:
+Örnek çıktı:
 
 ```
-🧠 Generating commit message…
+🧠 Commit mesajı oluşturuluyor…
 💬 "feat(ui): improve layout responsiveness on profile page"
 
- 2 files changed, 10 insertions(+), 3 deletions(-)
+ 2 dosya değişti, 10 ekleme(+), 3 silme(-)
 ```
 
 ---
 
-## ⚙️ Configuration
+## ⚙️ Yapılandırma
 
-Optional `~/.nscmrc`:
+İsteğe bağlı `~/.nscmrc`:
 
 ```yaml
 provider: openai
@@ -47,18 +47,18 @@ model: gpt-5-mini-2025-08-07
 style: conventional
 ```
 
-Environment variables override the config file:
+Ortam değişkenleri config dosyasını geçersiz kılar:
 
-- `NSCM_PROVIDER` — provider to use (default: `openai`)
-- `NSCM_MODEL` — model identifier (default: `gpt-5-mini-2025-08-07`)
-- `NSCM_STYLE` — style hint (default: `conventional`)
-- `OPENAI_API_KEY` — required when provider is `openai`
+- `NSCM_PROVIDER` — kullanılacak sağlayıcı (varsayılan: `openai`)
+- `NSCM_MODEL` — model tanımlayıcısı (varsayılan: `gpt-5-mini-2025-08-07`)
+- `NSCM_STYLE` — stil ipucu (varsayılan: `conventional`)
+- `OPENAI_API_KEY` — sağlayıcı `openai` olduğunda gereklidir
 
 ---
 
-## 🛠️ Development
+## 🛠️ Geliştirme
 
-Project layout:
+Proje düzeni:
 
 ```
 no-shit-commit-messages/
@@ -70,7 +70,7 @@ no-shit-commit-messages/
 └─ .github/workflows/release.yml
 ```
 
-Run locally without Homebrew:
+Homebrew olmadan yerel olarak çalıştır:
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -79,13 +79,13 @@ python3 ./nscm.py commit -m ""
 
 ---
 
-## 🧭 Roadmap
+## 🧭 Yol Haritası
 
-- Ollama or even faster model providers
-- additional context for better commit messages
-- Optional interactive confirmation
-- `--dry-run` previews
-- Submit to Homebrew core once stable
+- Ollama veya daha hızlı model sağlayıcıları
+- daha iyi commit mesajları için ek bağlam
+- İsteğe bağlı etkileşimli onay
+- `--dry-run` ön izlemeleri
+- Stabil olduğunda Homebrew core'a gönder
 
 ---
 
